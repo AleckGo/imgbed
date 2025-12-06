@@ -1,6 +1,7 @@
 'use client'
 import { signOut } from "next-auth/react"
-import Table from "@/components/Table"
+// import Table from "@/components/Table"
+import ImageGrid from "@/components/ImageGrid"
 import { useState, useEffect, useCallback } from 'react';
 import { ToastContainer, toast } from "react-toastify";
 import Link from 'next/link'
@@ -128,7 +129,8 @@ export default function Admin() {
 
         <main className="my-[60px] w-9/10  sm:w-9/10 md:w-9/10 lg:w-9/10 xl:w-3/5 2xl:w-full">
 
-          <Table data={listData} />
+          {/* <Table data={listData} /> */}
+          <ImageGrid data={listData} />
 
         </main>
         <div className="fixed inset-x-0 bottom-0 h-[50px]  w-full  flex  z-50 justify-center items-center bg-white ">
