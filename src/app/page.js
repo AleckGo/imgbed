@@ -94,7 +94,7 @@ export default function Home() {
 
       } else {
         setisAuthapi(false)
-        setSelectedOption("58img")
+        setSelectedOption("tgchannel")
       }
 
 
@@ -160,7 +160,7 @@ export default function Home() {
       return;
     }
 
-    const formFieldName = selectedOption === "tencent" ? "media" : "file";
+    const formFieldName = selectedOption === "file";
     let successCount = 0;
 
     try {
@@ -173,8 +173,7 @@ export default function Home() {
           const targetUrl = selectedOption === "tgchannel" || selectedOption === "r2"
             ? `/api/enableauthapi/${selectedOption}`
             : `/api/${selectedOption}`;
-
-          // const response = await fetch("https://img.131213.xyz/api/tencent", {
+            
           const response = await fetch(targetUrl, {
             method: 'POST',
             body: formData,
@@ -503,13 +502,8 @@ export default function Home() {
               value={selectedOption} // 将选择框的值绑定到状态中的 selectedOption
               onChange={handleSelectChange} // 当选择框的值发生变化时触发 handleSelectChange 函数
               className="text-lg p-2 border  rounded text-center w-auto sm:w-auto md:w-auto lg:w-auto xl:w-auto  2xl:w-36">
-              <option value="tg" >TG(会失效)</option>
               <option value="tgchannel">TG_Channel</option>
               <option value="r2">R2</option>
-              {/* <option value="vviptuangou">vviptuangou</option> */}
-              <option value="58img">58img</option>
-              {/* <option value="tencent">tencent</option> */}
-
             </select>
           </div>
 
