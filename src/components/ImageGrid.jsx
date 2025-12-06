@@ -18,6 +18,44 @@ export default function ImageGrid({ data: initialData = [] }) {
     }, [initialData]);
 
     const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    // 缩略图 blob 缓存：key 为 item.url 或 item.id
+    const [thumbMap, setThumbMap] = useState({});
+
+    // 预取 /api/file/... 类型的图片为 blob URL，解决部署到 Cloudflare 时直接在 <img> 上无法显示的问题
+    useEffect(() => {
+        let mounted = true;
+        async function prefetchThumbs() {
+            const map = {};
+            for (const item of initialData) {
+                if (!item || !item.url) continue;
+                const isProxy = item.url.startsWith('/file/') || item.url.startsWith('/cfile/') || item.url.startsWith('/rfile/');
+                const key = item.id || item.url;
+                if (!isProxy) continue;
+                try {
+                    const res = await fetch(`${origin}/api${item.url}`);
+                    if (!res.ok) continue;
+                    const contentType = res.headers.get('content-type') || '';
+                    if (!contentType.startsWith('image/')) continue;
+                    const blob = await res.blob();
+                    const blobUrl = URL.createObjectURL(blob);
+                    map[key] = blobUrl;
+                } catch (e) {
+                    // 忽略预取错误，保留原始 URL
+                }
+            }
+            if (mounted && Object.keys(map).length > 0) {
+                setThumbMap(prev => ({ ...prev, ...map }));
+            }
+        }
+        prefetchThumbs();
+        return () => {
+            mounted = false;
+            // 释放之前的 blob URLs
+            Object.values(thumbMap).forEach(url => {
+                try { URL.revokeObjectURL(url); } catch (e) { }
+            });
+        };
+    }, [initialData, origin]);
 
     const getImgUrl = (url) => {
         return url.startsWith("/file/") || url.startsWith("/cfile/") || url.startsWith("/rfile/") 
@@ -96,9 +134,11 @@ export default function ImageGrid({ data: initialData = [] }) {
         ];
 
         if (imageExtensions.includes(fileExtension)) {
+            const key = (data[index] && (data[index].id || data[index].url)) || fileUrl;
+            const previewSrc = thumbMap[key] || getImgUrl(fileUrl);
             return (
                 <img
-                    src={getImgUrl(fileUrl)}
+                    src={previewSrc}
                     alt={`Image ${index}`}
                     className="w-full h-full object-cover"
                     onError={(e) => {
