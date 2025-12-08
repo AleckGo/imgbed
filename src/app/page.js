@@ -160,7 +160,7 @@ export default function Home() {
       return;
     }
 
-    const formFieldName = selectedOption === "file";
+    const formFieldName = "file";
     let successCount = 0;
 
     try {
